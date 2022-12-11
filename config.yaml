@@ -1,0 +1,14 @@
+addr: :8765
+log:
+  location: log/space.log
+  maxSize: 10       # megabytes
+  maxBackups: 3
+  maxAge: 28        # days
+db:
+  name: space
+  addr: localhost:8123
+  username: root
+  password: 1234
+gormlog: true
+encrypt:
+  jwt_secret: Rtx8BPKOEF2mB6mGVKENIPWYQS3JOEYijxR42qRgq0iBb5
