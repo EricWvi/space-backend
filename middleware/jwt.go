@@ -13,12 +13,12 @@ func JWT(c *gin.Context) {
 		return
 	}
 
-	id, err := service.Parse(token)
+	id, err := service.ParseToken(token)
 	if err != nil {
 		handler.Errorf(c, err.Error())
 		return
 	}
-	if id != "eric" {
+	if id != 1010 {
 		handler.Errorf(c, "没有权限访问")
 		return
 	}

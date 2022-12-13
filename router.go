@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/space-backend/handler"
+	"github.com/space-backend/handler/editor"
 	"github.com/space-backend/handler/files"
 	"github.com/space-backend/handler/ping"
 	"github.com/space-backend/middleware"
@@ -22,12 +23,13 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		handler.ReplyString(c, http.StatusNotFound, "The incorrect API route.")
 	})
 
+	g.Use(middleware.Logging)
 	g.Any("/ping", ping.DefaultHandler)
 	u := g.Group(ApiBase)
-	u.Use(middleware.Logging, middleware.JWT)
+	u.Use(middleware.JWT)
 	{
-		u.Any("/ping", ping.DefaultHandler)
 		u.Any("/files", files.DefaultHandler)
+		u.Any("/editor", editor.DefaultHandler)
 	}
 
 	return g

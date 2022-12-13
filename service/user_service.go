@@ -34,9 +34,9 @@ func secretFunc(secret string) jwt.Keyfunc {
 	}
 }
 
-// Parse validates the usertoken with the specified secret,
+// ParseToken validates the usertoken with the specified secret,
 // and returns the context if the usertoken was valid.
-func Parse(tokenString string) (id string, err error) {
+func ParseToken(tokenString string) (id uint, err error) {
 	// Parse the usertoken.
 	token, err := jwt.Parse(tokenString, secretFunc(config.GetSecret()))
 
@@ -48,7 +48,7 @@ func Parse(tokenString string) (id string, err error) {
 		// Read the usertoken if it's valid.
 	} else {
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			id = claims["id"].(string)
+			id = uint(claims["id"].(float64))
 			// Other errors.
 		} else {
 			err = errors.New("token is invalid")
