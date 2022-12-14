@@ -9,40 +9,34 @@ import (
 )
 
 func (b Base) AddAtom(c *gin.Context, req *AddAtomRequest) *AddAtomResponse {
-	docId, err := service.ParseSid(req.DocId)
-	if err != nil {
-		handler.Errorf(c, err.Error())
-		return nil
-	}
+	docId, _ := service.ParseSid(req.DocId)
+	prevId, _ := service.ParseSid(req.PrevId)
 
 	var sidRaw int64
 	if req.Sid != "" {
-		sidRaw, err = service.ParseSid(req.Sid)
-		if err != nil {
-			handler.Errorf(c, err.Error())
-			return nil
-		}
+		sidRaw, _ = service.ParseSid(req.Sid)
 	} else {
 		sidRaw = service.NextId()
 	}
-	
+
 	a := model.Atom{
-		Sid:     sidRaw,
-		Content: req.Content,
-		Link:    req.Link,
-		Type:    model.FormatAtomType(req.Type),
-		DocId:   docId,
+		AtomField: model.AtomField{
+			Sid:     sidRaw,
+			Content: req.Content,
+			Link:    req.Link,
+			Type:    model.ParseAtomType(req.Type),
+			DocId:   docId,
+			PrevId:  prevId,
+		},
 	}
-	err = a.Create()
-	var sid string
-	if err == nil {
-		sid, err = service.ToSid(a.Sid)
-	}
+
+	err := a.Create()
 	if err != nil {
 		log.Error(err)
 		handler.Errorf(c, "failed to add atom")
 		return nil
 	}
+	sid, _ := service.ToSid(a.Sid)
 	return &AddAtomResponse{
 		Sid: sid,
 	}
@@ -54,6 +48,7 @@ type AddAtomRequest struct {
 	Link    string `json:"link"`
 	Type    string `json:"type"`
 	DocId   string `json:"docId"`
+	PrevId  string `json:"prevId"`
 }
 
 type AddAtomResponse struct {

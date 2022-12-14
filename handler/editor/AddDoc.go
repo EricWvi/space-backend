@@ -15,21 +15,20 @@ func (b Base) AddDoc(c *gin.Context, req *AddDocRequest) *AddDocResponse {
 		return nil
 	}
 	doc := model.Doc{
-		Sid:          service.NextId(),
-		CollectionId: collId,
-		Title:        req.Title,
+		DocField: model.DocField{
+			Sid:          service.NextId(),
+			CollectionId: collId,
+			Title:        req.Title,
+		},
 	}
+	// TODO check if the name of doc exists
 	err = doc.Create()
-
-	var sid string
-	if err == nil {
-		sid, err = service.ToSid(doc.Sid)
-	}
 	if err != nil {
 		log.Error(err)
 		handler.Errorf(c, "failed to add doc")
 		return nil
 	}
+	sid, _ := service.ToSid(doc.Sid)
 	return &AddDocResponse{
 		Sid: sid,
 	}

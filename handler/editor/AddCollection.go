@@ -10,19 +10,19 @@ import (
 
 func (b Base) AddCollection(c *gin.Context, req *AddCollectionRequest) *AddCollectionResponse {
 	coll := model.Collection{
-		Sid:  service.NextId(),
-		Name: req.Name,
+		CollectionField: model.CollectionField{
+			Sid:  service.NextId(),
+			Name: req.Name,
+		},
 	}
+	// TODO check if the name of collection exists
 	err := coll.Create()
-	var sid string
-	if err == nil {
-		sid, err = service.ToSid(coll.Sid)
-	}
 	if err != nil {
 		log.Error(err)
 		handler.Errorf(c, "failed to add collection")
 		return nil
 	}
+	sid, _ := service.ToSid(coll.Sid)
 	return &AddCollectionResponse{
 		Sid: sid,
 	}

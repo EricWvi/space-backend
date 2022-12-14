@@ -6,6 +6,7 @@ CREATE TABLE `atoms` (
                          `link` varchar(200),
                          `type` tinyint comment '图片、音频等',
                          `doc_id` bigint default 0 NOT NULL,
+                         `prev_id` bigint default 0 NOT NULL,
                          `created_at` timestamp NULL DEFAULT NULL,
                          `updated_at` timestamp NULL DEFAULT NULL,
                          `deleted_at` timestamp NULL DEFAULT NULL,
@@ -18,6 +19,9 @@ create index sid__index
 
 create index doc_id__index
     on atoms (doc_id);
+
+create index prev_id__index
+    on atoms (prev_id);
 
 #----------------------------------------------#
 CREATE TABLE `docs` (
