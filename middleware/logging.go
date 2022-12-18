@@ -30,7 +30,7 @@ func Logging(c *gin.Context) {
 	requestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Error("failed to read request body")
-		handler.ReplyString(c, http.StatusInternalServerError, "failed to read request body")
+		handler.ReplyError(c, http.StatusInternalServerError, "failed to read request body")
 		c.Abort()
 		return
 	}
@@ -39,7 +39,7 @@ func Logging(c *gin.Context) {
 	c.Set("RequestId", requestId)
 	list := c.Request.URL.Query().Get("Action")
 	if len(list) == 0 {
-		handler.ReplyString(c, http.StatusBadRequest, "request action is missing")
+		handler.ReplyError(c, http.StatusBadRequest, "request action is missing")
 		c.Abort()
 		return
 	}
@@ -50,6 +50,7 @@ func Logging(c *gin.Context) {
 	method := c.Request.Method
 	ip := c.ClientIP()
 
+	log.Infof("---------------------- %s ----------------------", requestId)
 	log.WithFields(log.Fields{
 		"requestId": requestId,
 		"method":    method,
@@ -87,4 +88,5 @@ func Logging(c *gin.Context) {
 			"latency":   latency,
 		}).Info()
 	}
+	log.Info("------------------------------------------------------------------")
 }

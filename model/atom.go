@@ -1,8 +1,8 @@
 package model
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
-	"github.com/space-backend/config"
 	"github.com/space-backend/service"
 	"gorm.io/gorm"
 )
@@ -20,11 +20,23 @@ type Atom struct {
 	AtomField
 }
 
+const (
+	Atom_Table   = "atoms"
+	Atom_Sid     = "sid"
+	Atom_Content = "content"
+	Atom_Name    = "name"
+	Atom_Type    = "type"
+	Atom_Version = "version"
+	Atom_DocId   = "doc_id"
+	Atom_PrevId  = "prev_id"
+)
+
 type AtomField struct {
 	Sid     int64  `json:"sid"`
 	Content string `json:"content"`
-	Link    string `json:"link"`
+	Name    string `json:"name"`
 	Type    int    `json:"type"`
+	Version int    `json:"version"`
 	DocId   int64  `json:"docId"`
 	PrevId  int64  `json:"prevId"`
 }
@@ -69,17 +81,28 @@ func FormatAtomType(aType int) string {
 	return ""
 }
 
-func (a *Atom) Create() error {
-	return config.DB.Create(a).Error
+func (a *Atom) Create(db *gorm.DB) error {
+	return db.Create(a).Error
 }
 
-func UpdateAtomPrevId(sid int64, prevId int64) error {
-	err := config.DB.Table("atoms").Where("sid = ?", sid).Update("prev_id", prevId).Error
-	if err != nil {
-		log.Error(err)
+func GetAtom(db *gorm.DB, where map[string]any) (a *Atom, err error) {
+	var atoms []Atom
+	db.Table(Atom_Table).Where(where).Order(Atom_Version + " DESC").Find(&atoms)
+	if len(atoms) == 0 {
+		err = errors.New("atom not found")
+		return
 	}
-	return err
+	a = &atoms[0]
+	return
 }
+
+//func UpdateAtomPrevId(db *gorm.DB, sid int64, prevId int64) error {
+//	err := db.Table(Atom_Table).Where(Atom_Sid, sid).Update(Atom_PrevId, prevId).Error
+//	if err != nil {
+//		log.Error(err)
+//	}
+//	return err
+//}
 
 type AtomView struct {
 	Sid    string `json:"sid"`
@@ -89,12 +112,25 @@ type AtomView struct {
 	AtomField
 }
 
-func GetAtomViewsByDocId(docId int64) (views []*AtomView, err error) {
-	var atoms []AtomField
-	err = config.DB.Table("atoms").Where("doc_id = ?", docId).
-		Find(&atoms).Error
+func GetAtomViewsByDoc(db *gorm.DB, docId int64, docVersion int) (views []*AtomView, err error) {
+	views = make([]*AtomView, 0)
+	var rows []Atom
+	err = db.Raw("select atoms.*\n"+
+		"from (SELECT max(version) as version, sid\n"+
+		"      FROM `atoms`\n"+
+		"      WHERE `doc_id` = ?	\n"+
+		"        and version <= ?\n"+
+		"        and deleted_at is null\n"+
+		"      group by sid) t1\n"+
+		"         inner join atoms on t1.version = atoms.version and t1.sid = atoms.sid\n", docId, docVersion).
+		Scan(&rows).Error
 	if err != nil {
 		log.Error(err)
+		return
+	}
+	var atoms []AtomField
+	for i := range rows {
+		atoms = append(atoms, rows[i].AtomField)
 	}
 	var nodes []ListNode[int64]
 	for i := range atoms {

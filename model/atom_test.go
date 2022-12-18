@@ -1,12 +1,21 @@
 package model
 
 import (
+	"fmt"
 	"github.com/space-backend/config"
 	"testing"
 )
 
 func init() {
 	config.InitForTest()
+}
+
+func TestTx(t *testing.T) {
+	var docs []AtomField
+	config.DB.Table("atoms").Where(map[string]any{
+		"sid": 363581145104453,
+	}).Find(&docs)
+	fmt.Println(docs)
 }
 
 func TestGetAtomsByDocId(t *testing.T) {
@@ -30,10 +39,9 @@ func TestGetAtomsByDocId(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := GetAtomViewsByDocId(tt.args.docId)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetAtomsByDocId() error = %v, wantErr %v", err, tt.wantErr)
-				return
+			views, _ := GetAtomViewsByDoc(config.DB, tt.args.docId, 3)
+			for _, v := range views {
+				fmt.Printf("%#v\n", *v)
 			}
 		})
 	}

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/space-backend/config"
+	"errors"
 	"github.com/space-backend/service"
 	"gorm.io/gorm"
 )
@@ -11,13 +11,30 @@ type Collection struct {
 	CollectionField
 }
 
+const (
+	Collection_Table = "collections"
+	Collection_Sid   = "sid"
+	Collection_Name  = "name"
+)
+
 type CollectionField struct {
 	Sid  int64  `json:"sid"`
 	Name string `json:"name"`
 }
 
-func (c *Collection) Create() error {
-	return config.DB.Create(c).Error
+func (c *Collection) Create(db *gorm.DB) error {
+	return db.Create(c).Error
+}
+
+func GetCollection(db *gorm.DB, where map[string]any) (c *Collection, err error) {
+	var colls []Collection
+	db.Table(Collection_Table).Where(where).Find(&colls)
+	if len(colls) != 1 {
+		err = errors.New("collection not found")
+		return
+	}
+	c = &colls[0]
+	return
 }
 
 type CollectionView struct {
@@ -25,9 +42,9 @@ type CollectionView struct {
 	CollectionField
 }
 
-func GetCollectionViews() (views []*CollectionView, err error) {
+func GetCollectionViews(db *gorm.DB) (views []*CollectionView, err error) {
 	var collections []CollectionField
-	err = config.DB.Table("collections").
+	err = db.Table(Collection_Table).
 		Find(&collections).Error
 	for _, c := range collections {
 		sid, _ := service.ToSid(c.Sid)

@@ -20,14 +20,14 @@ func Dispatch(c *gin.Context, base any) {
 
 	method := reflect.ValueOf(base).MethodByName(c.GetString("Action"))
 	if !method.IsValid() {
-		ReplyString(c, http.StatusNotFound, "request action does not exist")
+		ReplyError(c, http.StatusNotFound, "request action does not exist")
 	} else {
 		Type := method.Type()
 		ctx := reflect.ValueOf(c)
 		param := Type.In(1).Elem()
 		ptr, err := parse([]byte(body), param)
 		if err != nil {
-			ReplyString(c, http.StatusBadRequest, "failed to parse request body")
+			ReplyError(c, http.StatusBadRequest, "failed to parse request body")
 			return
 		}
 		rst := method.Call([]reflect.Value{ctx, ptr})[0]
@@ -41,8 +41,16 @@ func Dispatch(c *gin.Context, base any) {
 	}
 }
 
-func ReplyString(c *gin.Context, code int, msg string) {
+func ReplyError(c *gin.Context, code int, msg string) {
 	c.JSON(code, Response{
+		RequestId: c.GetString("RequestId"),
+		Code:      code,
+		Message:   msg,
+	})
+}
+
+func ReplyString(c *gin.Context, code int, msg string) {
+	c.JSON(http.StatusOK, Response{
 		RequestId: c.GetString("RequestId"),
 		Code:      code,
 		Message:   msg,

@@ -11,7 +11,7 @@ func init() {
 }
 
 func TestGetCollectionViews(t *testing.T) {
-	collections, _ := GetCollectionViews()
+	collections, _ := GetCollectionViews(config.DB)
 	fmt.Println(collections[0].Sid)
 	fmt.Println(collections[0].CollectionField.Sid)
 }
