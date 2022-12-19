@@ -11,10 +11,7 @@ import (
 )
 
 func (b Base) AddAtom(c *gin.Context, req *AddAtomRequest) *AddAtomResponse {
-	docId, _ := service.ParseSid(req.DocId)
-	prevId, _ := service.ParseSid(req.PrevId)
-
-	doc, err := model.GetDoc(config.DB, map[string]any{model.Doc_Sid: docId})
+	doc, err := model.GetDoc(config.DB, map[string]any{model.Doc_Sid: req.DocId})
 	if err != nil {
 		handler.Errorf(c, err.Error())
 		return nil
@@ -23,9 +20,9 @@ func (b Base) AddAtom(c *gin.Context, req *AddAtomRequest) *AddAtomResponse {
 	tx := config.DB.Begin()
 	defer tx.Commit()
 
-	a, err := AddAtom(tx, req.Content, req.Sid, req.Name, model.ParseAtomType(req.Type), docId, prevId, doc.Version)
+	a, err := AddAtom(tx, req.Content, req.Sid, req.Name, model.ParseAtomType(req.Type), req.DocId, req.PrevId, doc.Version)
 	if err == nil {
-		err = model.BumpDocVersion(tx, docId)
+		err = model.BumpDocVersion(tx, doc.Sid)
 	}
 	if err != nil {
 		tx.Rollback()
@@ -34,20 +31,19 @@ func (b Base) AddAtom(c *gin.Context, req *AddAtomRequest) *AddAtomResponse {
 		return nil
 	}
 
-	sid, _ := service.ToSid(a.Sid)
+	sid := a.Sid.String()
 	return &AddAtomResponse{
 		Sid: sid,
 	}
 }
 
 type AddAtomRequest struct {
-	Content    string `json:"content"`
-	Sid        string `json:"sid"`
-	Name       string `json:"name"`
-	Type       string `json:"type"`
-	DocId      string `json:"docId"`
-	PrevId     string `json:"prevId"`
-	DocVersion int    `json:"docVersion"`
+	Content string    `json:"content"`
+	Sid     model.Sid `json:"sid"`
+	Name    string    `json:"name"`
+	Type    string    `json:"type"`
+	DocId   model.Sid `json:"docId"`
+	PrevId  model.Sid `json:"prevId"`
 }
 
 type AddAtomResponse struct {
@@ -56,23 +52,20 @@ type AddAtomResponse struct {
 
 func AddAtom(db *gorm.DB,
 	Content string,
-	Sid string,
+	Sid model.Sid,
 	Name string,
 	Type int,
-	DocId int64,
-	PrevId int64,
+	DocId model.Sid,
+	PrevId model.Sid,
 	DocVersion int,
 ) (*model.Atom, error) {
-	var sidRaw int64
-	if Sid != "" {
-		sidRaw, _ = service.ParseSid(Sid)
-	} else {
-		sidRaw = service.NextId()
+	if Sid == 0 {
+		Sid = service.NextId()
 	}
 
 	a := model.Atom{
 		AtomField: model.AtomField{
-			Sid:     sidRaw,
+			Sid:     Sid,
 			Content: Content,
 			Name:    Name,
 			Type:    Type,

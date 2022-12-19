@@ -5,17 +5,15 @@ import (
 	"github.com/space-backend/config"
 	"github.com/space-backend/handler"
 	"github.com/space-backend/model"
-	"github.com/space-backend/service"
 )
 
 func (b Base) GetDocAtoms(c *gin.Context, req *GetDocAtomsRequest) *GetDocAtomsResponse {
-	docId, _ := service.ParseSid(req.DocId)
-	doc, err := model.GetDoc(config.DB, map[string]any{model.Doc_Sid: docId})
+	doc, err := model.GetDoc(config.DB, map[string]any{model.Doc_Sid: req.DocId})
 	if err != nil {
 		handler.Errorf(c, err.Error())
 		return nil
 	}
-	atoms, err := model.GetAtomViewsByDoc(config.DB, docId, doc.Version)
+	atoms, err := model.GetAtomViewsByDoc(config.DB, doc.Sid, doc.Version)
 	if err != nil {
 		handler.Errorf(c, "failed to get doc atoms")
 		return nil
@@ -27,7 +25,7 @@ func (b Base) GetDocAtoms(c *gin.Context, req *GetDocAtomsRequest) *GetDocAtomsR
 }
 
 type GetDocAtomsRequest struct {
-	DocId string `json:"docId"`
+	DocId model.Sid `json:"docId"`
 }
 
 type GetDocAtomsResponse struct {

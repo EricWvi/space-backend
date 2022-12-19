@@ -28,7 +28,7 @@ func (b Base) AddCollection(c *gin.Context, req *AddCollectionRequest) *AddColle
 		handler.Errorf(c, "failed to add collection")
 		return nil
 	}
-	sid, _ := service.ToSid(coll.Sid)
+	sid := coll.Sid.String()
 	return &AddCollectionResponse{
 		Sid: sid,
 	}

@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"github.com/space-backend/service"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +17,7 @@ const (
 )
 
 type CollectionField struct {
-	Sid  int64  `json:"sid"`
+	Sid  Sid    `json:"sid"`
 	Name string `json:"name"`
 }
 
@@ -47,9 +46,8 @@ func GetCollectionViews(db *gorm.DB) (views []*CollectionView, err error) {
 	err = db.Table(Collection_Table).
 		Find(&collections).Error
 	for _, c := range collections {
-		sid, _ := service.ToSid(c.Sid)
 		views = append(views, &CollectionView{
-			Sid:             sid,
+			Sid:             c.Sid.String(),
 			CollectionField: c,
 		})
 	}

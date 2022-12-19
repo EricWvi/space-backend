@@ -26,6 +26,12 @@ func Init() {
 	}}
 	formatter.Line = true
 	log.SetFormatter(&formatter)
+	level := viper.GetString("log.mode")
+	if level == "release" {
+		log.SetLevel(log.InfoLevel)
+	} else {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	log.SetOutput(&logger)
 

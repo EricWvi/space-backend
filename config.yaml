@@ -4,6 +4,7 @@ log:
   maxSize: 10       # megabytes
   maxBackups: 3
   maxAge: 28        # days
+  mode: debug
 db:
   name: space
   addr: ericwvi.site:8123

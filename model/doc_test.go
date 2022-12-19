@@ -7,7 +7,7 @@ import (
 
 func TestBumpDocVersion(t *testing.T) {
 	type args struct {
-		sid int64
+		sid Sid
 	}
 	tests := []struct {
 		name    string

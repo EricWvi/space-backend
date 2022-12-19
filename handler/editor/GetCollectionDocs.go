@@ -5,15 +5,10 @@ import (
 	"github.com/space-backend/config"
 	"github.com/space-backend/handler"
 	"github.com/space-backend/model"
-	"github.com/space-backend/service"
 )
 
 func (b Base) GetCollectionDocs(c *gin.Context, req *GetCollectionDocsRequest) *GetCollectionDocsResponse {
-	cid, err := service.ParseSid(req.CollectionId)
-	var views []*model.DocView
-	if err == nil {
-		views, err = model.GetDocViewsByCollectionId(config.DB, cid)
-	}
+	views, err := model.GetDocViewsByCollectionId(config.DB, req.CollectionId)
 	if err != nil {
 		handler.Errorf(c, err.Error())
 		return nil
@@ -25,7 +20,7 @@ func (b Base) GetCollectionDocs(c *gin.Context, req *GetCollectionDocsRequest) *
 }
 
 type GetCollectionDocsRequest struct {
-	CollectionId string `json:"collectionId"`
+	CollectionId model.Sid `json:"collectionId"`
 }
 
 type GetCollectionDocsResponse struct {

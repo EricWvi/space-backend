@@ -27,9 +27,10 @@ func Dispatch(c *gin.Context, base any) {
 		param := Type.In(1).Elem()
 		ptr, err := parse([]byte(body), param)
 		if err != nil {
-			ReplyError(c, http.StatusBadRequest, "failed to parse request body")
+			ReplyError(c, http.StatusBadRequest, "failed to parse request body: "+err.Error())
 			return
 		}
+		log.Debugf("%#v", ptr.Elem())
 		rst := method.Call([]reflect.Value{ctx, ptr})[0]
 		if !c.IsAborted() {
 			c.JSON(http.StatusOK, Response{
@@ -62,6 +63,7 @@ func Errorf(c *gin.Context, format string, a ...any) {
 	c.Abort()
 }
 
+// TODO validator
 func parse(body []byte, param reflect.Type) (reflect.Value, error) {
 	ptr := reflect.New(param).Interface()
 	if len(body) != 0 {

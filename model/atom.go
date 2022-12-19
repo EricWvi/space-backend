@@ -3,7 +3,6 @@ package model
 import (
 	"errors"
 	log "github.com/sirupsen/logrus"
-	"github.com/space-backend/service"
 	"gorm.io/gorm"
 )
 
@@ -32,20 +31,20 @@ const (
 )
 
 type AtomField struct {
-	Sid     int64  `json:"sid"`
+	Sid     Sid    `json:"sid"`
 	Content string `json:"content"`
 	Name    string `json:"name"`
 	Type    int    `json:"type"`
 	Version int    `json:"version"`
-	DocId   int64  `json:"docId"`
-	PrevId  int64  `json:"prevId"`
+	DocId   Sid    `json:"docId"`
+	PrevId  Sid    `json:"prevId"`
 }
 
-func (a AtomField) Prev() int64 {
+func (a AtomField) Prev() Sid {
 	return a.PrevId
 }
 
-func (a AtomField) Curr() int64 {
+func (a AtomField) Curr() Sid {
 	return a.Sid
 }
 
@@ -96,14 +95,6 @@ func GetAtom(db *gorm.DB, where map[string]any) (a *Atom, err error) {
 	return
 }
 
-//func UpdateAtomPrevId(db *gorm.DB, sid int64, prevId int64) error {
-//	err := db.Table(Atom_Table).Where(Atom_Sid, sid).Update(Atom_PrevId, prevId).Error
-//	if err != nil {
-//		log.Error(err)
-//	}
-//	return err
-//}
-
 type AtomView struct {
 	Sid    string `json:"sid"`
 	DocId  string `json:"docId"`
@@ -112,7 +103,7 @@ type AtomView struct {
 	AtomField
 }
 
-func GetAtomViewsByDoc(db *gorm.DB, docId int64, docVersion int) (views []*AtomView, err error) {
+func GetAtomViewsByDoc(db *gorm.DB, docId Sid, docVersion int) (views []*AtomView, err error) {
 	views = make([]*AtomView, 0)
 	var rows []Atom
 	err = db.Raw("select atoms.*\n"+
@@ -120,6 +111,8 @@ func GetAtomViewsByDoc(db *gorm.DB, docId int64, docVersion int) (views []*AtomV
 		"      FROM `atoms`\n"+
 		"      WHERE `doc_id` = ?	\n"+
 		"        and version <= ?\n"+
+		"        and sid > 0\n"+ // exclude invalid sid
+		"        and type > 0\n"+ // exclude malformed type
 		"        and deleted_at is null\n"+
 		"      group by sid) t1\n"+
 		"         inner join atoms on t1.version = atoms.version and t1.sid = atoms.sid\n", docId, docVersion).
@@ -132,20 +125,17 @@ func GetAtomViewsByDoc(db *gorm.DB, docId int64, docVersion int) (views []*AtomV
 	for i := range rows {
 		atoms = append(atoms, rows[i].AtomField)
 	}
-	var nodes []ListNode[int64]
+	var nodes []ListNode[Sid]
 	for i := range atoms {
 		nodes = append(nodes, &atoms[i])
 	}
 	for _, c := range Sort(nodes) {
 		a := c.(*AtomField)
-		sid, _ := service.ToSid(a.Sid)
-		did, _ := service.ToSid(a.DocId)
-		pid, _ := service.ToSid(a.PrevId)
 		views = append(views, &AtomView{
-			Sid:       sid,
-			DocId:     did,
+			Sid:       a.Sid.String(),
+			DocId:     a.DocId.String(),
 			Type:      FormatAtomType(a.Type),
-			PrevId:    pid,
+			PrevId:    a.PrevId.String(),
 			AtomField: *a,
 		})
 	}

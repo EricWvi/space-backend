@@ -18,9 +18,14 @@ func TestTx(t *testing.T) {
 	fmt.Println(docs)
 }
 
+func TestGetAtom(t *testing.T) {
+	a, _ := GetAtom(config.DB, map[string]any{Atom_Sid: 363581145104453})
+	fmt.Printf("%#v\n", a.AtomField)
+}
+
 func TestGetAtomsByDocId(t *testing.T) {
 	type args struct {
-		docId int64
+		docId Sid
 	}
 	tests := []struct {
 		name      string
