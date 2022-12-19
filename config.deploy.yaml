@@ -1,4 +1,4 @@
-addr: :8765
+addr: :8719
 log:
   location: log/space.log
   maxSize: 10       # megabytes
@@ -7,9 +7,9 @@ log:
   mode: release
 db:
   name: space
-  addr: ericwvi.site:8123
+  addr: localhost:8003
   username: root
-  password: 1234
+  password: 1010
 gormlog: true
 encrypt:
   jwt_secret: Rtx8BPKOEF2mB6mGVKENIPWYQS3JOEYijxR42qRgq0iBb5

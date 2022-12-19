@@ -42,6 +42,7 @@ type CollectionView struct {
 }
 
 func GetCollectionViews(db *gorm.DB) (views []*CollectionView, err error) {
+	views = make([]*CollectionView, 0)
 	var collections []CollectionField
 	err = db.Table(Collection_Table).
 		Find(&collections).Error
