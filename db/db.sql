@@ -4,7 +4,7 @@ create table atoms
         primary key,
     sid        bigint default 0 not null,
     content    text             null,
-    link       varchar(200)     null,
+    name       varchar(200)     null,
     type       tinyint          null comment '图片、音频等',
     version    int    default 0 not null,
     doc_id     bigint default 0 not null,
@@ -58,5 +58,4 @@ create table docs
 
 create index sid__index
     on docs (sid);
-
 

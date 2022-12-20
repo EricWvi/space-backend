@@ -11,11 +11,7 @@ func init() {
 }
 
 func TestTx(t *testing.T) {
-	var docs []AtomField
-	config.DB.Table("atoms").Where(map[string]any{
-		"sid": 363581145104453,
-	}).Find(&docs)
-	fmt.Println(docs)
+
 }
 
 func TestGetAtom(t *testing.T) {

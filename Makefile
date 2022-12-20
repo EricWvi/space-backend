@@ -1,5 +1,6 @@
 Mode ?= DEBUG
-PORT_NUM := $(shell lsof -i | grep 8719 | awk -F ' ' '{print $$2}')
+PORT_NUM := $(shell lsof -i tcp:8719 | grep space | awk -F ' ' '{print $$2}')
+PROD_DIR = /Users/wangyi/Documents/PersonalFile/Git/deploy/space/back
 
 run: FORCE
 	go build
@@ -14,8 +15,8 @@ ifneq ($(PORT_NUM),)
 	kill -9 $(PORT_NUM)
 endif
 	go build
-	mv space-backend /home/test/space/back-deploy
-	cp config.deploy.yaml /home/test/space/back-deploy/config.yaml
-	export GIN_MODE=release;cd /home/test/space/back-deploy;./space-backend > gin.log &
+	mv space-backend $(PROD_DIR)
+	cp config.deploy.yaml $(PROD_DIR)/config.yaml
+	export GIN_MODE=release;cd $(PROD_DIR);./space-backend > gin.log &
 
 FORCE:

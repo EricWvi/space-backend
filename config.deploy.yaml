@@ -1,4 +1,10 @@
 addr: :8719
+route:
+  back:
+    base: "/api"
+  front:
+    dir: "dist"
+    index: "dist/index.html"
 log:
   location: log/space.log
   maxSize: 10       # megabytes
@@ -7,9 +13,9 @@ log:
   mode: release
 db:
   name: space
-  addr: localhost:8003
+  addr: localhost:3306
   username: root
-  password: 1010
+  password: 19730310
 gormlog: true
 encrypt:
   jwt_secret: Rtx8BPKOEF2mB6mGVKENIPWYQS3JOEYijxR42qRgq0iBb5
