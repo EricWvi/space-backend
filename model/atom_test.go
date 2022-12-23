@@ -11,7 +11,11 @@ func init() {
 }
 
 func TestTx(t *testing.T) {
-
+	a := 1
+	defer func() {
+		fmt.Println(a)
+	}()
+	a = 10
 }
 
 func TestGetAtom(t *testing.T) {

@@ -1,6 +1,6 @@
 Mode ?= DEBUG
 PORT_NUM := $(shell lsof -i tcp:8719 | grep space | awk -F ' ' '{print $$2}')
-PROD_DIR = /Users/wangyi/Documents/PersonalFile/Git/deploy/space/back
+PROD_DIR = $(CODE_DIR)/deploy/space/back
 
 run: FORCE
 	go build

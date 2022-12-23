@@ -3,16 +3,13 @@ package main
 import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
-	"github.com/jxskiss/ginregex"
 	log "github.com/sirupsen/logrus"
-	"github.com/space-backend/handler"
 	"github.com/space-backend/handler/editor"
 	"github.com/space-backend/handler/files"
 	"github.com/space-backend/handler/login"
 	"github.com/space-backend/handler/ping"
 	"github.com/space-backend/middleware"
 	"github.com/spf13/viper"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -26,12 +23,16 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	g.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// 404 Handler.
-	g.NoRoute(func(c *gin.Context) {
-		handler.ReplyError(c, http.StatusNotFound, "The incorrect API route.")
-	})
+	//g.NoRoute(func(c *gin.Context) {
+	//	handler.ReplyError(c, http.StatusNotFound, "The incorrect API route.")
+	//})
 
-	regexRouter := ginregex.New(g, nil)
-	regexRouter.Any("^/.*$", func(c *gin.Context) {
+	// serve spa index.html
+	//regexRouter := ginregex.New(g, nil)
+	//regexRouter.Any("^/.*$", func(c *gin.Context) {
+	//	c.File(viper.GetString("route.front.index"))
+	//})
+	g.NoRoute(func(c *gin.Context) {
 		c.File(viper.GetString("route.front.index"))
 	})
 

@@ -13,7 +13,11 @@ func (b Base) GetDocAtoms(c *gin.Context, req *GetDocAtomsRequest) *GetDocAtomsR
 		handler.Errorf(c, err.Error())
 		return nil
 	}
-	atoms, err := model.GetAtomViewsByDoc(config.DB, doc.Sid, doc.Version)
+	version := doc.Version
+	if req.Version != 0 {
+		version = req.Version
+	}
+	atoms, err := model.GetAtomViewsByDoc(config.DB, doc.Sid, version)
 	if err != nil {
 		handler.Errorf(c, "failed to get doc atoms")
 		return nil
@@ -25,7 +29,8 @@ func (b Base) GetDocAtoms(c *gin.Context, req *GetDocAtomsRequest) *GetDocAtomsR
 }
 
 type GetDocAtomsRequest struct {
-	DocId model.Sid `json:"docId"`
+	DocId   model.Sid `json:"docId"`
+	Version int       `json:"version"`
 }
 
 type GetDocAtomsResponse struct {

@@ -129,6 +129,7 @@ func GetAtomViewsByDoc(db *gorm.DB, docId Sid, docVersion int) (views []*AtomVie
 	for i := range atoms {
 		nodes = append(nodes, &atoms[i])
 	}
+	// deleted atom, whose PrevId is -1, will be eliminated during Sort
 	for _, c := range Sort(nodes) {
 		a := c.(*AtomField)
 		views = append(views, &AtomView{
