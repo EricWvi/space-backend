@@ -25,7 +25,7 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 func Logging(c *gin.Context) {
 	start := time.Now().UTC()
 	path := c.Request.URL.Path
-	queries := c.Request.URL.Query()
+	queries := c.Request.URL.RawQuery
 	headers := c.Request.Header
 	requestBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -80,11 +80,8 @@ func Logging(c *gin.Context) {
 	} else {
 		log.WithFields(log.Fields{
 			"requestId": rsp.RequestId,
-			"method":    method,
-			"path":      path,
 			"code":      rsp.Code,
 			"message":   rsp.Message,
-			"ip":        ip,
 			"latency":   latency,
 		}).Info()
 	}

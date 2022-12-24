@@ -11,6 +11,10 @@ import (
 )
 
 func (b Base) AddAtom(c *gin.Context, req *AddAtomRequest) *AddAtomResponse {
+	if req.Sid == req.PrevId {
+		handler.Errorf(c, "atom cannot refer to itself")
+		return nil
+	}
 	doc, err := model.GetDoc(config.DB, map[string]any{model.Doc_Sid: req.DocId})
 	if err != nil {
 		handler.Errorf(c, err.Error())

@@ -5,6 +5,8 @@ route:
   front:
     dir: "dist"
     index: "dist/index.html"
+localoss:
+  location: oss
 log:
   location: log/space.log
   maxSize: 10       # megabytes

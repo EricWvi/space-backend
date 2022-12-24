@@ -59,3 +59,21 @@ create table docs
 create index sid__index
     on docs (sid);
 
+create table files
+(
+    id            int auto_increment
+        primary key,
+    sid           bigint default 0 not null,
+    name          varchar(200)     null,
+    size          bigint default 0 not null,
+    link          varchar(250) default '' not null,
+    location      tinyint          null comment '存储位置',
+    type          varchar(200)     null comment '文件类型',
+    created_at    timestamp        null,
+    updated_at    timestamp        null,
+    deleted_at    timestamp        null
+)
+    collate = utf8mb4_unicode_ci;
+
+create index files__sid__index
+    on files (sid);

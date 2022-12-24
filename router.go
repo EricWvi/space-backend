@@ -54,16 +54,19 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	}
 
 	back := g.Group(viper.GetString("route.back.base"))
-
 	back.Use(middleware.Logging)
 	back.Any("/ping", ping.DefaultHandler)
 	back.Any("/login", login.DefaultHandler)
 	auth := back.Group("space")
 	auth.Use(middleware.JWT)
 	{
-		auth.Any("/files", files.DefaultHandler)
 		auth.Any("/editor", editor.DefaultHandler)
 	}
+
+	file := g.Group(viper.GetString("route.back.base") + "/space/files")
+	file.Use(middleware.NonJsonLogging, middleware.JWT)
+	file.POST("/upload", files.UploadFile)
+	file.GET("/download", files.DownloadFile)
 
 	return g
 }
