@@ -100,6 +100,7 @@ type AtomView struct {
 	DocId  string `json:"docId"`
 	Type   string `json:"type"`
 	PrevId string `json:"prevId"`
+	Link   string `json:"link"`
 	AtomField
 }
 

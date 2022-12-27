@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/space-backend/config"
 	"github.com/space-backend/model"
 	"github.com/spf13/viper"
 	"os"
@@ -38,5 +39,17 @@ func DownloadFile(location int, link string) (content []byte, err error) {
 
 	default:
 		return
+	}
+}
+
+func GetFileLink(sid model.Sid) string {
+	f, err := model.GetFile(config.DB, map[string]any{model.File_Sid: sid})
+	if err != nil {
+		return ""
+	}
+	if f.Location == model.LocalOSS {
+		return viper.GetString("route.back.base") + "/space/files/download?Sid=" + sid.String()
+	} else {
+		return f.Link
 	}
 }

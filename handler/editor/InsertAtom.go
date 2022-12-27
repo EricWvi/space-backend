@@ -18,7 +18,7 @@ func (b Base) InsertAtom(c *gin.Context, req *InsertAtomRequest) *InsertAtomResp
 	tx := config.DB.Begin()
 	defer tx.Commit()
 
-	a, err := AddAtom(tx, req.Content, 0, req.Name, model.ParseAtomType(req.Type), doc.Sid, req.PrevId, doc.Version)
+	a, err := AddAtom(tx, req.Content, req.Sid, req.Name, model.ParseAtomType(req.Type), doc.Sid, req.PrevId, doc.Version)
 	if req.NextId != 0 {
 		n, e := model.GetAtom(config.DB, map[string]any{model.Atom_Sid: req.NextId})
 		err = e
@@ -41,6 +41,7 @@ func (b Base) InsertAtom(c *gin.Context, req *InsertAtomRequest) *InsertAtomResp
 }
 
 type InsertAtomRequest struct {
+	Sid     model.Sid `json:"sid"`
 	Content string    `json:"content"`
 	Name    string    `json:"name"`
 	Type    string    `json:"type"`

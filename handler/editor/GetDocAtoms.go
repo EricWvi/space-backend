@@ -5,6 +5,7 @@ import (
 	"github.com/space-backend/config"
 	"github.com/space-backend/handler"
 	"github.com/space-backend/model"
+	"github.com/space-backend/service"
 )
 
 func (b Base) GetDocAtoms(c *gin.Context, req *GetDocAtomsRequest) *GetDocAtomsResponse {
@@ -21,6 +22,12 @@ func (b Base) GetDocAtoms(c *gin.Context, req *GetDocAtomsRequest) *GetDocAtomsR
 	if err != nil {
 		handler.Errorf(c, "failed to get doc atoms")
 		return nil
+	}
+
+	for _, a := range atoms {
+		if a.Type != model.FormatAtomType(model.Text) {
+			a.Link = service.GetFileLink(a.AtomField.Sid)
+		}
 	}
 
 	return &GetDocAtomsResponse{

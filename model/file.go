@@ -29,6 +29,8 @@ func ParseFileLocation(t string) int {
 	switch t {
 	case "localoss":
 		return LocalOSS
+	case "oss":
+		return LocalOSS
 	}
 	return MalFileLocation
 }

@@ -64,8 +64,8 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	}
 
 	file := g.Group(viper.GetString("route.back.base") + "/space/files")
-	file.Use(middleware.NonJsonLogging, middleware.JWT)
-	file.POST("/upload", files.UploadFile)
+	file.Use(middleware.NonJsonLogging)
+	file.POST("/upload", middleware.JWT, files.UploadFile)
 	file.GET("/download", files.DownloadFile)
 
 	return g
